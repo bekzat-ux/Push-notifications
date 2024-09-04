@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cache cleanup</title>
+  </head>
+  <body>
+    <h1>Service Workers!</h1>
+    <script text="text/javascript">
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker.register('sw4.js').then(
+            function (registration) {
+              console.log(
+                "Service Worker registration successful with scope: ",
+                registration.scope
+              );
+            },
+            function (err) {
+              console.log("Service Worker registration failed: ", err);
+            }
+          );
+        });
+
+        navigator.serviceWorker.ready.then(async function (registration) {
+          const pushServerPublicKey =
+            "BLmmSMTWHa86eNynzfMXu21NfYlyEZi0DI6FyplXZ8jkELXL0VpGQegm5t5sGxRpeVQySf08QMowcGPxJfg2h50";
+
+          const subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: pushServerPublicKey,
+          });
+
+          fetch("http://localhost:3000/subscription", {
+            method: "POST",
+            body: JSON.stringify(subscription),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+        });
+      }
+    </script>
+  </body>
+</html>
